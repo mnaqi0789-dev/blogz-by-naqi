@@ -1,12 +1,30 @@
 "use client";
-import React from 'react'
-import { usePosts } from "../../hooks/usePosts";
-import PostGrid from "../../components/PostGrid";
 
-const Page = () => {
- const { data: posts, isLoading, isError, error } = usePosts();
+import React, { useMemo } from "react";
+import { usePosts } from "@/hooks/usePosts";
+import { usePostsFilter } from "@/context/PostsFilterContext";
+import PostGrid from "@/components/PostGrid";
 
- if (isLoading) {
+const PostsPage = () => {
+  const { data: posts = [], isLoading, isError, error } = usePosts();
+  const { search, category } = usePostsFilter();
+
+  const filteredPosts = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    
+    return posts.filter((post) => {
+      const matchesCategory = category === "all" ? true : post.category === category;
+      if (!matchesCategory) return false;
+
+      if (!query) return true;
+      return (
+        post.title.toLowerCase().includes(query) ||
+        post.description.toLowerCase().includes(query)
+      );
+    });
+  }, [posts, search, category]);
+
+  if (isLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
@@ -25,15 +43,20 @@ const Page = () => {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mb-10 space-y-4">
-        {/* <p className="text-slate-500">Explore technical writeups and financial analysis.</p> */}
-        
-      </div>
+    // pt-28 provides safe breathing room below the fixed navigation bubble
+    <main className="mx-auto max-w-7xl px-4 pt-28 pb-12 sm:px-6 lg:px-8">
+      <header className="mb-10 space-y-1">
+        <h1 className="text-3xl font-semibold tracking-tight text-blue-600">
+          Posts
+        </h1>
+        <p className="text-sm text-slate-500">
+          {filteredPosts.length} {filteredPosts.length === 1 ? "post" : "posts"} found
+        </p>
+      </header>
 
-      <PostGrid posts={posts || []} />
+      <PostGrid posts={filteredPosts} />
     </main>
   );
-}
+};
 
-export default Page
+export default PostsPage;

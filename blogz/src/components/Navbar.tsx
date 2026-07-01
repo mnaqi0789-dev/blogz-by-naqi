@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import SearchBar from "./SearchBar";
+import CategoryFilter from "./CategoryFilter";
+import { usePostsFilter } from "@/context/PostsFilterContext";
 
 const navLinks = [
   { href: "/posts", label: "Posts" },
@@ -9,43 +12,46 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-function Logo() {
-  return (
-    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-blue-100 bg-blue-50">
-      <span className="font-serif text-xl font-bold text-blue-700">B</span>
-    </div>
-  );
-}
-
 export default function Navbar() {
   const pathname = usePathname();
+  const onPosts = pathname === "/posts" || pathname.startsWith("/posts/");
+  const { search, setSearch, category, setCategory } = usePostsFilter();
 
   return (
-    <nav className="sticky top-4 z-50 mx-auto w-full max-w-6xl px-4">
-      <div className="flex items-center justify-between rounded-full border border-slate-200 bg-white/85 px-5 py-3 shadow-sm backdrop-blur-md">
-        <Link href="/" className="flex items-center gap-3">
-          <Logo />
-
-          <span className="text-sm font-semibold tracking-[0.22em] text-blue-800">
+    <nav className="fixed top-4 left-1/2 z-50 w-full max-w-6xl -translate-x-1/2 px-4">
+      <div className="flex items-center justify-between gap-4 rounded-full border border-slate-200/70 bg-white/70 px-5 py-2.5 shadow-[0_8px_30px_-12px_rgba(37,99,235,0.15)] backdrop-blur-xl">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5">
+          {/* Swapped to text-blue-600 & bg-blue-600 to match light blue brand colors */}
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+            B
+          </span>
+          <span className="text-[15px] font-semibold tracking-[0.18em] text-blue-600">
             BLOGZ
           </span>
         </Link>
 
+        {/* Center: filter tools on /posts only */}
+        {onPosts && (
+          <div className="hidden items-center gap-2 md:flex">
+            <SearchBar value={search} onChange={setSearch} />
+            <CategoryFilter value={category} onChange={setCategory} />
+          </div>
+        )}
+
+        {/* Right: nav links */}
         <div className="flex items-center gap-1 text-sm font-medium">
           {navLinks.map((link) => {
             const isActive =
-              link.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(link.href);
-
+              pathname === link.href || pathname.startsWith(link.href + "/");
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`rounded-full px-4 py-2 transition-colors ${
                   isActive
-                    ? "bg-blue-700 text-white"
-                    : "text-slate-500 hover:bg-blue-50 hover:text-blue-700"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-blue-600"
                 }`}
               >
                 {link.label}
