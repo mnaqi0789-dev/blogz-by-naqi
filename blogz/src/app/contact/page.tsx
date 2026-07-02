@@ -1,4 +1,3 @@
-// app/contact/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -74,44 +73,36 @@ export default function ContactPage() {
   };
 
   const inputBase =
-    "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-[#1e3a8a] focus:ring-2 focus:ring-[#1e3a8a]/15";
+    "w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15";
 
   const errorClass = (field: keyof FormState) =>
     errors[field] ? "border-red-400" : "border-slate-200";
 
   return (
-    <section className="mx-auto grid min-h-[calc(100vh-8rem)] max-w-7xl grid-cols-1 items-start gap-14 px-6 py-16 lg:grid-cols-2 lg:py-24">
+    <section className="mx-auto grid min-h-[calc(100vh-8rem)] max-w-6xl grid-cols-1 items-start gap-14 px-6 py-16 lg:grid-cols-2 lg:py-24">
       {/* Left — copy + info */}
       <div className="flex flex-col">
-        <span className="inline-flex w-fit items-center gap-2 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
-          <Mail className="h-3.5 w-3.5 text-[#1e3a8a]" />
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+          <Mail className="h-3 w-3 text-blue-600" />
           Contact
         </span>
 
-        <h1 className="mt-6 font-serif text-5xl leading-[1.05] tracking-tight text-[#1e3a8a] sm:text-6xl">
+        <h1 className="mt-6 font-serif text-4xl leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
           How can we
           <br />
-          help you <span className="text-[#2563eb]">today?</span>
+          help you <span className="text-blue-600">today?</span>
         </h1>
 
-        <p className="mt-5 max-w-md text-base leading-relaxed text-slate-600">
+        <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-500">
           Questions, pitches, or just want to say hi? Our tiny editorial team
           reads every message and usually replies within a day.
         </p>
 
         <div className="mt-10 space-y-5">
+          <InfoRow icon={<Mail className="h-4 w-4 text-blue-600" />} label="Email" value="hello@blogz.com" />
+          <InfoRow icon={<Phone className="h-4 w-4 text-blue-600" />} label="Phone" value="+1 (800) 123-4567" />
           <InfoRow
-            icon={<Mail className="h-4 w-4 text-[#1e3a8a]" />}
-            label="Email"
-            value="hello@blogz.com"
-          />
-          <InfoRow
-            icon={<Phone className="h-4 w-4 text-[#1e3a8a]" />}
-            label="Phone"
-            value="+1 (800) 123-4567"
-          />
-          <InfoRow
-            icon={<MapPin className="h-4 w-4 text-[#1e3a8a]" />}
+            icon={<MapPin className="h-4 w-4 text-blue-600" />}
             label="Location"
             value="Silicon Valley, CA 94043 United States"
           />
@@ -122,7 +113,7 @@ export default function ContactPage() {
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-[0_20px_50px_-25px_rgba(30,58,138,0.25)] backdrop-blur-sm sm:p-8"
+        className="rounded-2xl border border-slate-200/80 bg-white/70 p-6 shadow-[0_8px_30px_-12px_rgba(30,58,138,0.15)] backdrop-blur-xl sm:p-8"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <Field label="First name" error={errors.firstName} required>
@@ -196,11 +187,9 @@ export default function ContactPage() {
           <button
             type="submit"
             disabled={status === "sending"}
-            className="inline-flex items-center gap-2 rounded-full bg-[#1e3a8a] px-6 py-2.5 text-sm font-medium text-white shadow-[0_10px_30px_-10px_rgba(30,58,138,0.5)] transition-all hover:-translate-y-0.5 hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {status === "sending" && (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            )}
+            {status === "sending" && <Loader2 className="h-4 w-4 animate-spin" />}
             {status === "sending" ? "Sending..." : "Submit"}
           </button>
 
@@ -232,12 +221,10 @@ function InfoRow({
         {icon}
       </span>
       <div className="min-w-0">
-        <div className="text-xs uppercase tracking-widest text-slate-500">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
           {label}
         </div>
-        <div className="mt-0.5 text-sm font-semibold text-slate-900">
-          {value}
-        </div>
+        <div className="mt-0.5 text-sm font-semibold text-slate-900">{value}</div>
       </div>
     </div>
   );
@@ -258,7 +245,7 @@ function Field({
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium text-slate-700">
         {label}
-        {required && <span className="text-[#2563eb]">*</span>}
+        {required && <span className="text-blue-600">*</span>}
       </span>
       {children}
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}

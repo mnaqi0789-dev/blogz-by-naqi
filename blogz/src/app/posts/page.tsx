@@ -5,6 +5,12 @@ import { usePosts } from "@/hooks/usePosts";
 import { useFilterStore } from "@/store/filterStore";
 import PostGrid from "@/components/PostGrid";
 
+const categoryLabels: Record<string, string> = {
+  all: "All",
+  finance: "Finance",
+  compsci: "Computer Science",
+};
+
 const PostsPage = () => {
   const { data: posts = [], isLoading, isError, error } = usePosts();
   const search = useFilterStore((state) => state.search);
@@ -50,14 +56,31 @@ const PostsPage = () => {
 
   return (
     <main className="mx-auto max-w-7xl px-4 pt-28 pb-12 sm:px-6 lg:px-8">
-      <header className="mb-10 space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight text-blue-600">
-          Posts
-        </h1>
-        <p className="text-sm text-slate-500">
-          {filteredPosts.length} {filteredPosts.length === 1 ? "post" : "posts"}{" "}
-          found
-        </p>
+      <header className="mb-10 flex flex-col gap-3 border-b border-slate-100 pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-2">
+            <span className="h-1 w-1 rounded-full bg-blue-600" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">
+              The Archive
+            </span>
+          </div>
+          <h1 className="mt-2 font-serif text-3xl tracking-tight text-slate-900 sm:text-4xl">
+            Posts
+          </h1>
+        </div>
+
+        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-sm backdrop-blur-xl">
+          <span className="font-semibold text-blue-600">
+            {filteredPosts.length}
+          </span>
+          <span>{filteredPosts.length === 1 ? "post" : "posts"}</span>
+          {category !== "all" && (
+            <>
+              <span className="text-slate-300">&middot;</span>
+              <span>{categoryLabels[category]}</span>
+            </>
+          )}
+        </div>
       </header>
 
       <PostGrid posts={filteredPosts} />
