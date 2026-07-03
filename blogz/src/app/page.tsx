@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import banner from "@/assets/banner.png";
+import banner from "@/assets/real-banner.png";
 
 export default function HomePage() {
   return (
