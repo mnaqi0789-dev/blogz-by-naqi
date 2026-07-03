@@ -34,23 +34,27 @@ const PostsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-        <span className="ml-2 text-slate-600 font-medium">
-          Loading posts...
-        </span>
-      </div>
+      <main className="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 pt-28 pb-12 sm:px-6 lg:px-8">
+        <div className="flex items-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <span className="ml-2 text-slate-600 font-medium">
+            Loading posts...
+          </span>
+        </div>
+      </main>
     );
   }
 
   if (isError) {
     return (
-      <div className="mx-auto max-w-md my-12 p-6 rounded-2xl border border-red-200 bg-red-50 text-center text-red-700">
-        <h3 className="font-bold text-lg">Failed to load posts</h3>
-        <p className="text-sm mt-1">
-          {(error as Error)?.message || "Unknown error occurred"}
-        </p>
-      </div>
+      <main className="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 pt-28 pb-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-md rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
+          <h3 className="font-bold text-lg">Failed to load posts</h3>
+          <p className="text-sm mt-1">
+            {(error as Error)?.message || "Unknown error occurred"}
+          </p>
+        </div>
+      </main>
     );
   }
 
