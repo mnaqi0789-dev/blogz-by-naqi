@@ -10,6 +10,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { Timestamp } from "firebase/firestore";
 
 export interface Post {
   id: string;
@@ -19,7 +20,7 @@ export interface Post {
   content: string;
   category: "finance" | "compsci";
   bannerImage: string;
-  createdAt: Date;
+  createdAt: Timestamp;
 }
 
 export async function getAllPosts(): Promise<Post[]> {
