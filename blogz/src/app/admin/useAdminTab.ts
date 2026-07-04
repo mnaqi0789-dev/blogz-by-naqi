@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 
-export type AdminTab = "create" | "manage";
+export type AdminTab = "create" | "manage" | "messages";
 
 const STORAGE_KEY = "blogz-admin-tab";
 
 function readStoredTab(): AdminTab {
   if (typeof window === "undefined") return "create";
   const stored = window.sessionStorage.getItem(STORAGE_KEY);
-  return stored === "create" || stored === "manage" ? stored : "create";
+  return stored === "create" || stored === "manage" || stored === "messages" 
+    ? (stored as AdminTab) 
+    : "create";
 }
 
 export function useAdminTab() {

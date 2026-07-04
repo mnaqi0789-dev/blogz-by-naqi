@@ -1,19 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { FolderHeart, LogOut, PlusCircle } from "lucide-react";
+import { FolderHeart, LogOut, PlusCircle, Inbox } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
 import { usePosts, usePostMutations } from "@/hooks/usePosts";
+import { useMessages } from "@/hooks/useMessages";
 import { useAdminTab } from "./useAdminTab";
 import PostForm from "./PostForm";
 import ManagePanel from "./ManagePanel";
+import MessagesPanel from "./MessagesPanel";
 import type { PostFormValues } from "./schema";
 
 export default function AdminDashboard() {
   const currentUser = useAuthStore((s) => s.currentUser);
   const { logout } = useAuth();
   const { data: posts, isLoading: isLoadingPosts } = usePosts();
+  const { data: messages } = useMessages();
+  
   const { createPost, updatePost, deletePost, isCreating, isUpdating, isDeleting } =
     usePostMutations();
   const { tab, setTab } = useAdminTab();
@@ -22,9 +26,11 @@ export default function AdminDashboard() {
   const handleSubmit = async (values: PostFormValues) => {
     if (editingPostSlug) {
       await updatePost({ slug: editingPostSlug, data: values });
+      setEditingPostSlug(null);
     } else {
       await createPost({ ...values, createdAt: new Date() });
     }
+    setTab("manage");
   };
 
   return (
@@ -59,7 +65,7 @@ export default function AdminDashboard() {
         <div className="mb-6 inline-flex flex-wrap gap-1 rounded-full border border-slate-200 bg-white p-1">
           <TabButton active={tab === "create"} onClick={() => setTab("create")}>
             <PlusCircle className="h-4 w-4" />
-            {editingPostSlug ? "Edit Post" : "Create Post"}
+            Create Post
           </TabButton>
           <TabButton active={tab === "manage"} onClick={() => setTab("manage")}>
             <FolderHeart className="h-4 w-4" />
@@ -68,17 +74,25 @@ export default function AdminDashboard() {
               {posts?.length ?? 0}
             </span>
           </TabButton>
+          <TabButton active={tab === "messages"} onClick={() => setTab("messages")}>
+            <Inbox className="h-4 w-4" />
+            Inquiries
+            <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              {messages?.length ?? 0}
+            </span>
+          </TabButton>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
-          {tab === "create" ? (
+          {tab === "create" && (
             <PostForm
               editingSlug={editingPostSlug}
               onCancelEdit={() => setEditingPostSlug(null)}
               onSubmit={handleSubmit}
               submitting={isCreating || isUpdating}
             />
-          ) : (
+          )}
+          {tab === "manage" && (
             <ManagePanel
               posts={posts}
               isLoading={isLoadingPosts}
@@ -93,6 +107,7 @@ export default function AdminDashboard() {
               onEmptyCreate={() => setTab("create")}
             />
           )}
+          {tab === "messages" && <MessagesPanel />}
         </div>
       </div>
     </main>

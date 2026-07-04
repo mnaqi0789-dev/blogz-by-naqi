@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { z } from "zod";
+import { useMessageMutations } from "@/hooks/useMessages";
 
 const contactSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required").max(50),
@@ -35,7 +36,8 @@ const initialForm: FormState = {
 export default function ContactPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [errors, setErrors] = useState<Errors>({});
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const { submitMessage, isSubmittingMessage } = useMessageMutations();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -60,10 +62,13 @@ export default function ContactPage() {
       return;
     }
 
-    setStatus("sending");
     try {
-      // TODO: replace with your API call (e.g. fetch("/api/contact"))
-      await new Promise((r) => setTimeout(r, 900));
+      await submitMessage({
+        name: `${form.firstName} ${form.lastName}`.trim(),
+        email: form.email,
+        subject: `Inquiry from ${form.firstName}`,
+        message: `Email: ${form.email}\nPhone: ${form.phone}\n\n${form.message}`,
+      });
       setStatus("sent");
       setForm(initialForm);
       setTimeout(() => setStatus("idle"), 3500);
@@ -80,7 +85,6 @@ export default function ContactPage() {
 
   return (
     <section className="mx-auto grid min-h-[calc(100vh-8rem)] max-w-6xl grid-cols-1 items-start gap-14 px-6 py-16 lg:grid-cols-2 lg:py-24">
-      {/* Left — copy + info */}
       <div className="flex flex-col">
         <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
           <Mail className="h-3 w-3 text-blue-600" />
@@ -109,7 +113,6 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Right — form card */}
       <form
         onSubmit={handleSubmit}
         noValidate
@@ -186,11 +189,11 @@ export default function ContactPage() {
         <div className="mt-6 flex items-center justify-between gap-4">
           <button
             type="submit"
-            disabled={status === "sending"}
+            disabled={isSubmittingMessage}
             className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {status === "sending" && <Loader2 className="h-4 w-4 animate-spin" />}
-            {status === "sending" ? "Sending..." : "Submit"}
+            {isSubmittingMessage && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isSubmittingMessage ? "Sending..." : "Submit"}
           </button>
 
           {status === "sent" && (
@@ -203,8 +206,6 @@ export default function ContactPage() {
     </section>
   );
 }
-
-/* ---------- helpers ---------- */
 
 function InfoRow({
   icon,
