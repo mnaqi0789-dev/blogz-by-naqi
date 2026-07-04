@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "Blogz",
   description: "whatever you want to write",
 };
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
