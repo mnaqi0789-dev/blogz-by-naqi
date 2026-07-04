@@ -46,7 +46,7 @@ export function usePostMutations() {
   const queryClient = useQueryClient();
 
   const createPostMutation = useMutation({
-    mutationFn: (newPost: Post) => createPost(newPost),
+    mutationFn: (newPost: Omit<Post, "id">) => createPost(newPost),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
     },
