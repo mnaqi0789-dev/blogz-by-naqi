@@ -2,9 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import {
-  LogIn,
   LogOut,
   ShieldAlert,
   ShieldCheck,
@@ -20,8 +18,6 @@ import {
 import { useAuthStore } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
 import { usePosts, usePostMutations } from "@/hooks/usePosts";
-
-const ROYAL = "#1e3a8a";
 
 export default function AdminPage() {
   const currentUser = useAuthStore((s) => s.currentUser);
@@ -51,16 +47,13 @@ export default function AdminPage() {
   // ── 1. Not signed in ────────────────────────────────────────────────
   if (!currentUser) {
     return (
-      <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-md items-center px-6 py-16">
-        <div className="w-full rounded-3xl border border-slate-200 bg-white/80 p-10 shadow-[0_25px_60px_-25px_rgba(30,58,138,0.25)] backdrop-blur-xl">
+      <main className="flex min-h-screen items-center justify-center px-6 pt-28 pb-16">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-10">
           <div className="mb-8 flex flex-col items-center text-center">
-            <div
-              className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg shadow-blue-900/20"
-              style={{ backgroundColor: ROYAL }}
-            >
-              <ShieldCheck className="h-7 w-7" />
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
+              <ShieldCheck className="h-6 w-6 text-blue-600" />
             </div>
-            <h1 className="font-serif text-3xl font-semibold tracking-tight" style={{ color: ROYAL }}>
+            <h1 className="font-serif text-2xl tracking-tight text-slate-900">
               Admin Access
             </h1>
             <p className="mt-2 text-sm text-slate-500">
@@ -69,7 +62,7 @@ export default function AdminPage() {
           </div>
 
           {authError && (
-            <div className="mb-5 flex items-start gap-2 rounded-xl border border-red-100 bg-red-50/70 p-3 text-sm text-red-600">
+            <div className="mb-5 flex items-start gap-2 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{authError}</span>
             </div>
@@ -78,7 +71,7 @@ export default function AdminPage() {
           <button
             onClick={handleGoogleLogin}
             disabled={authLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50/60 hover:text-[#1e3a8a] disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:border-blue-600 hover:text-blue-600 disabled:opacity-60"
           >
             {authLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -92,197 +85,208 @@ export default function AdminPage() {
             Restricted portal. Unauthorized attempts will be denied.
           </p>
         </div>
-      </section>
+      </main>
     );
   }
 
   // ── 2. Signed in but not the admin ─────────────────────────────────
   if (currentUser.email !== adminEmail) {
     return (
-      <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-md items-center px-6 py-16">
-        <div className="w-full rounded-3xl border border-slate-200 bg-white/80 p-10 text-center shadow-[0_25px_60px_-25px_rgba(30,58,138,0.25)] backdrop-blur-xl">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500">
-            <ShieldAlert className="h-7 w-7" />
+      <main className="flex min-h-screen items-center justify-center px-6 pt-28 pb-16">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-10 text-center">
+          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
+            <ShieldAlert className="h-6 w-6 text-red-500" />
           </div>
-          <h1 className="font-serif text-2xl font-semibold tracking-tight text-slate-800">
+          <h1 className="font-serif text-2xl tracking-tight text-slate-900">
             Not Authorized
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
-            <span className="font-medium text-slate-700">{currentUser.email}</span> does not have
-            access to this portal.
+          <p className="mt-2 truncate text-sm text-slate-500">
+            <span className="font-medium text-slate-700">
+              {currentUser.email}
+            </span>{" "}
+            does not have access to this portal.
           </p>
           <button
             onClick={logout}
-            className="mt-8 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:opacity-90"
-            style={{ backgroundColor: ROYAL }}
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
             <LogOut className="h-4 w-4" />
             Switch account
           </button>
         </div>
-      </section>
+      </main>
     );
   }
 
   // ── 3. Authorized dashboard ────────────────────────────────────────
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12">
-      {/* Header */}
-      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/60 px-3 py-1 text-xs font-medium text-[#1e3a8a]">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Admin Console
+    <main className="min-h-screen px-6 pt-28 pb-16">
+      <div className="mx-auto max-w-6xl">
+        {/* Header */}
+        <header className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6">
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-2">
+              <span className="h-1 w-1 rounded-full bg-blue-600" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">
+                Admin Console
+              </span>
+            </div>
+            <h1 className="mt-2 font-serif text-3xl tracking-tight text-slate-900 sm:text-4xl">
+              Dashboard
+            </h1>
+            <p className="mt-1 truncate text-sm text-slate-500">
+              Signed in as{" "}
+              <span className="font-medium text-slate-700">
+                {currentUser.email}
+              </span>
+            </p>
           </div>
-          <h1 className="font-serif text-4xl font-semibold tracking-tight" style={{ color: ROYAL }}>
-            Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Signed in as <span className="font-medium text-slate-700">{currentUser.email}</span>
-          </p>
+
+          <button
+            onClick={logout}
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-600 hover:text-blue-600"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </button>
+        </header>
+
+        {/* Tabs */}
+        <div className="mb-6 inline-flex flex-wrap gap-1 rounded-full border border-slate-200 bg-white p-1">
+          <TabButton active={tab === "create"} onClick={() => setTab("create")}>
+            <PlusCircle className="h-4 w-4" />
+            Create Post
+          </TabButton>
+          <TabButton active={tab === "manage"} onClick={() => setTab("manage")}>
+            <FolderHeart className="h-4 w-4" />
+            Manage Posts
+            <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              {posts?.length ?? 0}
+            </span>
+          </TabButton>
         </div>
 
-        <button
-          onClick={logout}
-          className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-blue-200 hover:text-[#1e3a8a]"
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </button>
-      </header>
+        {/* Panel */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+          {tab === "create" ? (
+            <div>
+              <h2 className="font-serif text-xl text-slate-900">
+                {editingPostSlug ? "Edit Post" : "Draft a New Entry"}
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Compose content, assign metadata, and publish to production.
+              </p>
 
-      {/* Tabs */}
-      <div className="mb-6 inline-flex rounded-full border border-slate-200 bg-white/70 p-1 shadow-sm backdrop-blur">
-        <TabButton active={tab === "create"} onClick={() => setTab("create")}>
-          <PlusCircle className="h-4 w-4" />
-          Create Post
-        </TabButton>
-        <TabButton active={tab === "manage"} onClick={() => setTab("manage")}>
-          <FolderHeart className="h-4 w-4" />
-          Manage Posts
-          <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-            {posts?.length ?? 0}
-          </span>
-        </TabButton>
-      </div>
-
-      {/* Panel */}
-      <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-[0_20px_50px_-30px_rgba(30,58,138,0.25)] backdrop-blur-xl">
-        {tab === "create" ? (
-          <div>
-            <h2 className="font-serif text-2xl font-semibold" style={{ color: ROYAL }}>
-              {editingPostSlug ? "Edit Post" : "Draft a New Entry"}
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Compose content, assign metadata, and publish to production.
-            </p>
-
-            <div className="mt-6 flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 text-center">
-              <div className="px-6 py-12">
-                <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-                <p className="text-sm font-medium text-slate-500">Editor coming soon</p>
-                <p className="mt-1 text-xs text-slate-400">
-                  TipTap editor integration point — Step 12
-                </p>
-              </div>
-            </div>
-
-            {editingPostSlug && (
-              <button
-                onClick={() => setEditingPostSlug(null)}
-                className="mt-4 text-xs font-medium text-slate-500 hover:text-[#1e3a8a]"
-              >
-                ← Cancel edit
-              </button>
-            )}
-          </div>
-        ) : (
-          <div>
-            <h2 className="font-serif text-2xl font-semibold" style={{ color: ROYAL }}>
-              Content Inventory
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Review, edit metadata, or remove live posts.
-            </p>
-
-            <div className="mt-6">
-              {isLoadingPosts ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="h-20 animate-pulse rounded-2xl border border-slate-100 bg-slate-50"
-                    />
-                  ))}
-                </div>
-              ) : posts && posts.length > 0 ? (
-                <ul className="space-y-3">
-                  {posts.map((post) => (
-                    <li
-                      key={post.id}
-                      className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-blue-200 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0">
-                        <h3 className="truncate text-sm font-semibold text-slate-800">
-                          {post.title}
-                        </h3>
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-[#1e3a8a]">
-                            {post.category}
-                          </span>
-                          <span className="truncate text-xs text-slate-400">/{post.slug}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setEditingPostSlug(post.slug);
-                            setTab("create");
-                          }}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-blue-200 hover:text-[#1e3a8a]"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                          Edit
-                        </button>
-                        <button
-                          disabled={isDeleting}
-                          onClick={async () => {
-                            if (confirm(`Permanently remove "${post.title}"?`)) {
-                              await deletePost(post.slug);
-                            }
-                          }}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-red-100 bg-red-50/60 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          Delete
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-16 text-center">
-                  <FileText className="mb-3 h-8 w-8 text-slate-300" />
-                  <p className="text-sm font-medium text-slate-500">No posts yet</p>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Start by drafting your first article.
+              <div className="mt-6 flex min-h-[320px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/60 text-center">
+                <div className="px-6 py-12">
+                  <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300" />
+                  <p className="text-sm font-medium text-slate-500">
+                    Editor coming soon
                   </p>
-                  <button
-                    onClick={() => setTab("create")}
-                    className="mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium text-white shadow-sm transition hover:opacity-90"
-                    style={{ backgroundColor: ROYAL }}
-                  >
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    Create your first post
-                  </button>
+                  <p className="mt-1 text-xs text-slate-400">
+                    TipTap editor integration point — Step 12
+                  </p>
                 </div>
+              </div>
+
+              {editingPostSlug && (
+                <button
+                  onClick={() => setEditingPostSlug(null)}
+                  className="mt-4 text-xs font-medium text-slate-500 hover:text-blue-600"
+                >
+                  ← Cancel edit
+                </button>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            <div>
+              <h2 className="font-serif text-xl text-slate-900">
+                Content Inventory
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Review, edit metadata, or remove live posts.
+              </p>
+
+              <div className="mt-6">
+                {isLoadingPosts ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="h-20 animate-pulse rounded-xl border border-slate-100 bg-slate-50"
+                      />
+                    ))}
+                  </div>
+                ) : posts && posts.length > 0 ? (
+                  <ul className="space-y-3">
+                    {posts.map((post) => (
+                      <li
+                        key={post.id}
+                        className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-blue-200 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div className="min-w-0">
+                          <h3 className="truncate text-sm font-semibold text-slate-800">
+                            {post.title}
+                          </h3>
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                              {post.category}
+                            </span>
+                            <span className="truncate text-xs text-slate-400">
+                              /{post.slug}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingPostSlug(post.slug);
+                              setTab("create");
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-blue-600 hover:text-blue-600"
+                          >
+                            <Edit3 className="h-3.5 w-3.5" />
+                            Edit
+                          </button>
+                          <button
+                            disabled={isDeleting}
+                            onClick={async () => {
+                              if (confirm(`Permanently remove "${post.title}"?`)) {
+                                await deletePost(post.slug);
+                              }
+                            }}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-16 text-center">
+                    <FileText className="mb-3 h-8 w-8 text-slate-300" />
+                    <p className="text-sm font-medium text-slate-500">No posts yet</p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Start by drafting your first article.
+                    </p>
+                    <button
+                      onClick={() => setTab("create")}
+                      className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                      Create your first post
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </section>
+    </main>
   );
 }
 
@@ -302,8 +306,8 @@ function TabButton({
       onClick={onClick}
       className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
         active
-          ? "bg-[#1e3a8a] text-white shadow-sm"
-          : "text-slate-600 hover:bg-slate-100 hover:text-[#1e3a8a]"
+          ? "bg-blue-600 text-white"
+          : "text-slate-600 hover:bg-slate-100 hover:text-blue-600"
       }`}
     >
       {children}
