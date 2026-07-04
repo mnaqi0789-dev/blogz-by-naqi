@@ -1,0 +1,4 @@
+[build]
+  base = "blogz"
+  command = "npm run build"
+  publish = ".next"
