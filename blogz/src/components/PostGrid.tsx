@@ -23,7 +23,7 @@ export default function PostGrid({ posts }: PostGridProps) {
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {posts.map((post, index) => (
         <PostCard
-          key={post.id || `fallback-key-${index}`} // <-- FIXED: Guarantees a unique key
+          key={post.id || `fallback-key-${index}`} 
           post={post}
         />
       ))}

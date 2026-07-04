@@ -31,7 +31,6 @@ export default function PostCard({ post }: PostCardProps) {
       href={`/blog/${post.slug || "#"}`}
       className="group block overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_-12px_rgba(30,58,138,0.12)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(30,58,138,0.25)] hover:border-blue-200"
     >
-      {/* Banner */}
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
         <Image
           src={cleanImageSrc}
@@ -43,7 +42,6 @@ export default function PostCard({ post }: PostCardProps) {
         />
       </div>
 
-      {/* Content */}
       <div className="flex flex-col gap-3 p-6">
         <div className="flex items-center justify-between text-xs">
           <span className="rounded-full bg-blue-50 px-3 py-1 font-medium text-blue-700">

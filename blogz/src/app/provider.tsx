@@ -7,7 +7,6 @@ import { useAuth } from "@/hooks/useAuth"; // <-- Import the hook here
 export default function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
 
-  // Run the auth listener globally across the entire application lifecycle
   useAuth();
 
   return (

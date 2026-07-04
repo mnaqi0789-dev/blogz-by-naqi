@@ -11,7 +11,6 @@ export function useAuth() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // Map raw Firebase User fields to your custom AuthUser interface structure
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,

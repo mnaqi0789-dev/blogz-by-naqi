@@ -15,12 +15,10 @@ export const postKeys = {
   detail: (slug: string) => [...postKeys.all, "detail", slug] as const,
 };
 
-// 1. Fetches all posts once, caches them, and filters instantly on the client side
 export function usePosts() {
   const activeCategory = useFilterStore((state) => state.activeCategory);
 
   return useQuery<Post[]>({
-    // Keep this key static so TanStack Query hits the cache instead of refetching on filter change
     queryKey: postKeys.lists(),
     queryFn: getAllPosts,
     select: (posts) => {
@@ -32,7 +30,6 @@ export function usePosts() {
   });
 }
 
-// 2. Strongly typed single post hook so components instantly recognize Firestore Timestamp methods
 export function usePost(slug: string) {
   return useQuery<Post | null>({
     queryKey: postKeys.detail(slug),
@@ -41,7 +38,6 @@ export function usePost(slug: string) {
   });
 }
 
-// 3. Mutations for Admin dashboard processing
 export function usePostMutations() {
   const queryClient = useQueryClient();
 
@@ -56,7 +52,6 @@ export function usePostMutations() {
     mutationFn: ({ slug, data }: { slug: string; data: Partial<Post> }) =>
       updatePost(slug, data),
     onSuccess: (_, variables) => {
-      // Clear main list cache and individual post detail cache
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
       queryClient.invalidateQueries({ queryKey: postKeys.detail(variables.slug) });
     },

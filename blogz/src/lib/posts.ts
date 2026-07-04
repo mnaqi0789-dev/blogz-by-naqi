@@ -88,7 +88,6 @@ export async function createPost(
   try {
     const postsRef = collection(db, "posts");
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured only to exclude `id` from the write payload
     const { id, ...firebasePayload } = post;
 
     const docRef = await addDoc(postsRef, firebasePayload);

@@ -5,7 +5,6 @@ import banner from "@/assets/banner-v3.png";
 export default function HomePage() {
   return (
     <section className="mx-auto grid min-h-screen max-w-6xl grid-cols-1 items-center gap-14 px-6 pb-16 pt-32 lg:grid-cols-12 lg:gap-10 lg:pt-24">
-      {/* Left column — copy */}
       <div className="flex flex-col justify-center lg:col-span-7">
         <div className="inline-flex w-fit items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
@@ -50,9 +49,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Right column — banner image */}
       <div className="relative flex w-full justify-center lg:col-span-5 lg:justify-end">
-        {/* soft glow behind the artwork so it reads as floating, not boxed */}
         <div className="absolute inset-0 -z-10 m-auto h-[85%] w-[85%] rounded-full bg-blue-400/25 blur-[80px]" />
 
         <div className="relative w-full max-w-md">

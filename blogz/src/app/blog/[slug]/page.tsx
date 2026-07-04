@@ -57,7 +57,6 @@ export default function PostPage({
 
   return (
     <main className="min-h-screen pb-24 pt-24 sm:pt-28">
-      {/* Hero — banner sits behind the title */}
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
         <Link
           href="/posts"
@@ -82,7 +81,6 @@ export default function PostPage({
             <div className="h-full w-full bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900" />
           )}
 
-          {/* gradient scrim so white title text stays legible */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
           <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
@@ -102,7 +100,6 @@ export default function PostPage({
         </div>
       </div>
 
-      {/* Body */}
       <article className="mx-auto max-w-3xl px-6 pt-10 sm:px-6">
         {post.description && (
           <p className="border-l-2 border-blue-200 pl-5 font-serif text-lg italic leading-relaxed text-slate-600">
