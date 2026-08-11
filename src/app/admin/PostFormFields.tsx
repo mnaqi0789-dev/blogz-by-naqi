@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2, Loader2, Save, X } from "lucide-react";
 import TipTapEditor from "@/components/ui/TipTapEditor";
+import { useAuthStore } from "@/store/authStore";
 import {
   postSchema,
   slugify,
@@ -29,6 +30,8 @@ export default function PostFormFields({
   const [slugTouched, setSlugTouched] = useState(!!editingSlug);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [saved, setSaved] = useState(false);
+  const isDemoMode = useAuthStore((s) => s.isDemoMode);
+  const openDemoNotice = useAuthStore((s) => s.openDemoNotice);
 
   const set = <K extends keyof PostFormValues>(key: K, value: PostFormValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -61,6 +64,11 @@ export default function PostFormFields({
         if (!fieldErrors[key]) fieldErrors[key] = issue.message;
       }
       setErrors(fieldErrors);
+      return;
+    }
+ 
+    if (isDemoMode) {
+      openDemoNotice(editingSlug ? "save changes to posts" : "publish new posts");
       return;
     }
     try {

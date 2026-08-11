@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
-import { Trash2, Loader2, Inbox, User, Calendar, Mail, Phone } from "lucide-react";
+import { Trash2, Loader2, Inbox, User, Calendar, Mail, Phone, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 import { useMessages, useMessageMutations } from "@/hooks/useMessages";
+import { useAuthStore } from "@/store/authStore";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +20,47 @@ import {
 export default function MessagesPanel() {
   const { data: messages, isLoading } = useMessages();
   const { deleteMessage, isDeletingMessage } = useMessageMutations();
+  const isDemoMode = useAuthStore((s) => s.isDemoMode);
+  const openDemoNotice = useAuthStore((s) => s.openDemoNotice);
+
+  const handleDeleteMessage = async (id: string) => {
+
+    if (isDemoMode) {
+      openDemoNotice("delete inquiries");
+      return;
+    }
+    await deleteMessage(id);
+  };
+
+  if (isDemoMode) {
+    return (
+      <div>
+        <h2 className="font-serif text-xl text-slate-900">Inbox Inquiries</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Review submitted messages and direct requests from the contact module.
+        </p>
+
+        <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-amber-200 bg-amber-50/60 px-6 py-16 text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
+            <ShieldAlert className="h-6 w-6 text-amber-600" />
+          </div>
+          <p className="font-semibold text-slate-800">
+            You&apos;re not allowed to view inquiries in demo mode.
+          </p>
+          <p className="mt-1 max-w-sm text-sm text-slate-500">
+            For authorization, please contact the admin.
+          </p>
+          <Link
+            href="/contact"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+          >
+            <Mail className="h-3.5 w-3.5" />
+            Contact admin
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -120,7 +163,7 @@ export default function MessagesPanel() {
                           </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={async () => {
-                              await deleteMessage(msg.id);
+                              await handleDeleteMessage(msg.id);
                             }}
                             className="rounded-full bg-red-600 font-semibold text-white hover:bg-red-700 text-xs"
                           >

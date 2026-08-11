@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, Loader2, LogOut, ShieldAlert, ShieldCheck } from "lucide-react";
+import { AlertCircle, Eye, Loader2, LogOut, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const currentUser = useAuthStore((s) => s.currentUser);
+  const isDemoMode = useAuthStore((s) => s.isDemoMode);
+  const enterDemoMode = useAuthStore((s) => s.enterDemoMode);
   const { loginWithGoogle, logout } = useAuth();
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -23,6 +25,10 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       setAuthLoading(false);
     }
   };
+
+  if (isDemoMode) {
+    return <>{children}</>;
+  }
 
   if (!currentUser) {
     return (
@@ -58,6 +64,22 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
               <GoogleIcon />
             )}
             {authLoading ? "Signing in..." : "Continue with Google"}
+          </button>
+
+          <div className="my-5 flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-100" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              or
+            </span>
+            <span className="h-px flex-1 bg-slate-100" />
+          </div>
+
+          <button
+            onClick={enterDemoMode}
+            className="flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-slate-300 bg-slate-50 px-5 py-3 text-sm font-medium text-slate-600 transition hover:border-blue-600 hover:text-blue-600"
+          >
+            <Eye className="h-4 w-4" />
+            View Demo Mode
           </button>
 
           <p className="mt-6 text-center text-xs text-slate-400">
