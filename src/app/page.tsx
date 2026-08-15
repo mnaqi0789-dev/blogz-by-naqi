@@ -41,7 +41,6 @@ export default function HomePage() {
         </div>
 
         <div className="mt-12 flex items-center gap-10 border-t border-slate-100 pt-7">
-          <Stat value="120+" label="Essays" />
           <span className="h-9 w-px bg-slate-200" />
           <Stat value="2" label="Categories" />
           <span className="h-9 w-px bg-slate-200" />
