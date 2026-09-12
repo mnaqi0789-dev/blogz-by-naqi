@@ -19,6 +19,7 @@ export interface Post {
   content: string;
   category: "finance" | "compsci";
   bannerImage: string;
+  status: "published" | "draft";
   createdAt: Date;
 }
 
@@ -37,6 +38,7 @@ export async function getAllPosts(): Promise<Post[]> {
         content: data.content || "",
         category: data.category || "finance",
         bannerImage: data.bannerImage || "",
+        status: data.status === "draft" ? "draft" : "published",
         createdAt:
           data.createdAt && typeof data.createdAt.toDate === "function"
             ? data.createdAt.toDate()
@@ -72,6 +74,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       content: data.content || "",
       category: data.category || "finance",
       bannerImage: data.bannerImage || "",
+      status: data.status === "draft" ? "draft" : "published",
       createdAt: data.createdAt?.toDate()
         ? data.createdAt.toDate()
         : new Date(data.createdAt || Date.now()),

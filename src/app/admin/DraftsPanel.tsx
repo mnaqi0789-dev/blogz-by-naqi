@@ -1,6 +1,7 @@
 "use client";
 
-import { Archive, Edit3, FileText, PlusCircle, Trash2 } from "lucide-react";
+import { Edit3, FileEdit, Mail, ShieldAlert, Trash2, UploadCloud } from "lucide-react";
+import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,28 +20,58 @@ const CATEGORY_LABELS: Record<Post["category"], string> = {
   compsci: "Computer Science",
 };
 
-export default function ManagePanel({
+export default function DraftsPanel({
   posts,
   isLoading,
   isDeleting,
+  isDemoMode,
   onEdit,
-  onArchive,
+  onPublish,
   onDelete,
-  onEmptyCreate,
 }: {
   posts: Post[] | undefined;
   isLoading: boolean;
   isDeleting: boolean;
+  isDemoMode: boolean;
   onEdit: (slug: string) => void;
-  onArchive: (slug: string) => void;
+  onPublish: (slug: string) => void;
   onDelete: (slug: string) => void;
-  onEmptyCreate: () => void;
 }) {
+  if (isDemoMode) {
+    return (
+      <div>
+        <h2 className="font-serif text-xl text-slate-900">Drafts</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Unpublished posts, visible only to the site owner.
+        </p>
+
+        <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/40 px-6 py-16 text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
+            <ShieldAlert className="h-6 w-6 text-slate-500" />
+          </div>
+          <p className="font-semibold text-slate-800">
+            You&apos;re not allowed to view draft posts in demo mode.
+          </p>
+          <p className="mt-1 max-w-sm text-sm text-slate-500">
+            For authorization, please contact the admin.
+          </p>
+          <Link
+            href="/contact"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+          >
+            <Mail className="h-3.5 w-3.5" />
+            Contact admin
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h2 className="font-serif text-xl text-slate-900">Content Inventory</h2>
+      <h2 className="font-serif text-xl text-slate-900">Drafts</h2>
       <p className="mt-1 text-sm text-slate-500">
-        Review, edit metadata, archive, or remove live posts.
+        Unpublished posts. Publish when ready, or keep editing.
       </p>
 
       <div className="mt-6">
@@ -58,9 +89,14 @@ export default function ManagePanel({
                 className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-900">
-                    {post.title}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                      {post.title || "Untitled draft"}
+                    </p>
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                      Draft
+                    </span>
+                  </div>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                     <span className="rounded-full bg-blue-50 px-2 py-0.5 font-medium text-blue-700">
                       {CATEGORY_LABELS[post.category] ?? post.category}
@@ -79,11 +115,11 @@ export default function ManagePanel({
                   </button>
 
                   <button
-                    onClick={() => onArchive(post.slug)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100"
+                    onClick={() => onPublish(post.slug)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
                   >
-                    <Archive className="h-3.5 w-3.5" />
-                    Archive
+                    <UploadCloud className="h-3.5 w-3.5" />
+                    Publish
                   </button>
 
                   <AlertDialog>
@@ -95,7 +131,7 @@ export default function ManagePanel({
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+                        <AlertDialogTitle>Delete this draft?</AlertDialogTitle>
                         <AlertDialogDescription>
                           {`"${post.title}" will be permanently removed from Firestore. This cannot be undone.`}
                         </AlertDialogDescription>
@@ -107,7 +143,7 @@ export default function ManagePanel({
                           onClick={() => onDelete(post.slug)}
                           className="bg-red-600 font-semibold text-white hover:bg-red-700"
                         >
-                          Delete post
+                          Delete draft
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -118,18 +154,11 @@ export default function ManagePanel({
           </ul>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 py-14 text-center">
-            <FileText className="mb-3 h-8 w-8 text-slate-300" />
-            <p className="font-semibold text-slate-700">No posts yet</p>
+            <FileEdit className="mb-3 h-8 w-8 text-slate-300" />
+            <p className="font-semibold text-slate-700">No drafts</p>
             <p className="mt-1 text-sm text-slate-500">
-              Start by drafting your first article.
+              Posts saved as drafts or archived from Manage will show up here.
             </p>
-            <button
-              onClick={onEmptyCreate}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Create your first post
-            </button>
           </div>
         )}
       </div>

@@ -14,7 +14,7 @@ export default function PostForm({
 }: {
   editingSlug: string | null;
   onCancelEdit: () => void;
-  onSubmit: (values: PostFormValues) => Promise<void>;
+  onSubmit: (values: PostFormValues, status?: Post["status"]) => Promise<void>;
   submitting: boolean;
 }) {
   const { data: existing, isLoading } = usePost(editingSlug ?? "");
@@ -33,6 +33,7 @@ export default function PostForm({
       key={editingSlug ?? "new"}
       editingSlug={editingSlug}
       initialValues={buildInitialValues(editingSlug, existing)}
+      initialStatus={existing?.status}
       onCancelEdit={onCancelEdit}
       onSubmit={onSubmit}
       submitting={submitting}

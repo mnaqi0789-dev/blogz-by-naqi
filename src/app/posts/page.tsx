@@ -20,6 +20,8 @@ const PostsPage = () => {
     const query = search.trim().toLowerCase();
 
     return posts.filter((post) => {
+      if (post.status === "draft") return false;
+
       const matchesCategory =
         category === "all" ? true : post.category === category;
       if (!matchesCategory) return false;

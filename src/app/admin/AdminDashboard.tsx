@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { FolderHeart, LogOut, PlusCircle, Inbox, Eye } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Archive, FolderHeart, LogOut, PlusCircle, Inbox, Eye } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useAuth } from "@/hooks/useAuth";
 import { usePosts, usePostMutations } from "@/hooks/usePosts";
 import { useMessages } from "@/hooks/useMessages";
+import type { Post } from "@/lib/posts";
 import { useAdminTab } from "./useAdminTab";
 import PostForm from "./PostForm";
 import ManagePanel from "./ManagePanel";
+import DraftsPanel from "./DraftsPanel";
 import MessagesPanel from "./MessagesPanel";
 import DemoModeNotice from "./DemoModeNotice";
 import type { PostFormValues } from "./schema";
@@ -21,34 +23,64 @@ export default function AdminDashboard() {
   const { logout } = useAuth();
   const { data: posts, isLoading: isLoadingPosts } = usePosts();
   const { data: messages } = useMessages();
-  
+
   const { createPost, updatePost, deletePost, isCreating, isUpdating, isDeleting } =
     usePostMutations();
   const { tab, setTab } = useAdminTab();
   const [editingPostSlug, setEditingPostSlug] = useState<string | null>(null);
 
-  const handleSubmit = async (values: PostFormValues) => {
+  const publishedPosts = useMemo(
+    () => posts?.filter((p) => p.status !== "draft") ?? [],
+    [posts],
+  );
+  const draftPosts = useMemo(
+    () => posts?.filter((p) => p.status === "draft") ?? [],
+    [posts],
+  );
 
+  const handleSubmit = async (values: PostFormValues, status?: Post["status"]) => {
     if (isDemoMode) {
-      openDemoNotice(editingPostSlug ? "save changes to posts" : "publish new posts");
+      openDemoNotice(
+        editingPostSlug
+          ? "save changes to posts"
+          : status === "draft"
+            ? "save draft posts"
+            : "publish new posts",
+      );
       return;
     }
     if (editingPostSlug) {
       await updatePost({ slug: editingPostSlug, data: values });
       setEditingPostSlug(null);
+      setTab("manage");
     } else {
-      await createPost({ ...values, createdAt: new Date() });
+      await createPost({ ...values, status: status ?? "published", createdAt: new Date() });
+      setTab(status === "draft" ? "drafts" : "manage");
     }
-    setTab("manage");
   };
 
   const handleDeletePost = (slug: string) => {
-
     if (isDemoMode) {
       openDemoNotice("delete posts");
       return;
     }
     void deletePost(slug);
+  };
+
+  const handleArchivePost = (slug: string) => {
+    if (isDemoMode) {
+      openDemoNotice("archive posts");
+      return;
+    }
+    void updatePost({ slug, data: { status: "draft" } });
+  };
+
+  const handlePublishPost = (slug: string) => {
+    if (isDemoMode) {
+      openDemoNotice("publish posts");
+      return;
+    }
+    void updatePost({ slug, data: { status: "published" } });
   };
 
   const handleSignOut = () => {
@@ -114,7 +146,14 @@ export default function AdminDashboard() {
             <FolderHeart className="h-4 w-4" />
             Manage Posts
             <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-              {posts?.length ?? 0}
+              {publishedPosts.length}
+            </span>
+          </TabButton>
+          <TabButton active={tab === "drafts"} onClick={() => setTab("drafts")}>
+            <Archive className="h-4 w-4" />
+            Drafts
+            <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              {isDemoMode ? 0 : draftPosts.length}
             </span>
           </TabButton>
           <TabButton active={tab === "messages"} onClick={() => setTab("messages")}>
@@ -137,15 +176,30 @@ export default function AdminDashboard() {
           )}
           {tab === "manage" && (
             <ManagePanel
-              posts={posts}
+              posts={publishedPosts}
               isLoading={isLoadingPosts}
               isDeleting={isDeleting}
               onEdit={(slug) => {
                 setEditingPostSlug(slug);
                 setTab("create");
               }}
+              onArchive={handleArchivePost}
               onDelete={handleDeletePost}
               onEmptyCreate={() => setTab("create")}
+            />
+          )}
+          {tab === "drafts" && (
+            <DraftsPanel
+              posts={draftPosts}
+              isLoading={isLoadingPosts}
+              isDeleting={isDeleting}
+              isDemoMode={isDemoMode}
+              onEdit={(slug) => {
+                setEditingPostSlug(slug);
+                setTab("create");
+              }}
+              onPublish={handlePublishPost}
+              onDelete={handleDeletePost}
             />
           )}
           {tab === "messages" && <MessagesPanel />}

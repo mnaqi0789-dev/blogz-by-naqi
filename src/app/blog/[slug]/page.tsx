@@ -27,7 +27,7 @@ export default function PostPage({
     );
   }
 
-  if (isError || !post) {
+  if (isError || !post || post.status === "draft") {
     return (
       <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-6 pt-28 pb-12 text-center">
         <h1 className="font-serif text-2xl text-slate-900">Post not found</h1>

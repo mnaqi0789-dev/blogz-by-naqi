@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Loader2, Save, X } from "lucide-react";
+import { CheckCircle2, FileEdit, Loader2, Save, X } from "lucide-react";
 import TipTapEditor from "@/components/ui/TipTapEditor";
 import { useAuthStore } from "@/store/authStore";
+import type { Post } from "@/lib/posts";
 import {
   postSchema,
   slugify,
@@ -16,14 +17,16 @@ import {
 export default function PostFormFields({
   editingSlug,
   initialValues,
+  initialStatus,
   onCancelEdit,
   onSubmit,
   submitting,
 }: {
   editingSlug: string | null;
   initialValues: PostFormValues;
+  initialStatus?: Post["status"];
   onCancelEdit: () => void;
-  onSubmit: (values: PostFormValues) => Promise<void>;
+  onSubmit: (values: PostFormValues, status?: Post["status"]) => Promise<void>;
   submitting: boolean;
 }) {
   const [values, setValues] = useState<PostFormValues>(initialValues);
@@ -53,8 +56,7 @@ export default function PostFormFields({
     set("slug", slugify(raw));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const runSubmit = async (status?: Post["status"]) => {
     setSaved(false);
     const parsed = postSchema.safeParse(values);
     if (!parsed.success) {
@@ -66,13 +68,20 @@ export default function PostFormFields({
       setErrors(fieldErrors);
       return;
     }
- 
+
     if (isDemoMode) {
-      openDemoNotice(editingSlug ? "save changes to posts" : "publish new posts");
+      openDemoNotice(
+        editingSlug
+          ? "save changes to posts"
+          : status === "draft"
+            ? "save draft posts"
+            : "publish new posts",
+      );
       return;
     }
+
     try {
-      await onSubmit(parsed.data);
+      await onSubmit(parsed.data, status);
       setSaved(true);
       if (!editingSlug) {
         setValues({ ...emptyForm });
@@ -83,13 +92,31 @@ export default function PostFormFields({
     }
   };
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    runSubmit(editingSlug ? undefined : "published");
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleFormSubmit} className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="font-serif text-xl text-slate-900">
-            {editingSlug ? "Edit Post" : "Draft a New Entry"}
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-serif text-xl text-slate-900">
+              {editingSlug ? "Edit Post" : "Draft a New Entry"}
+            </h2>
+            {editingSlug && initialStatus && (
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+                  initialStatus === "draft"
+                    ? "bg-amber-100 text-amber-700"
+                    : "bg-emerald-100 text-emerald-700"
+                }`}
+              >
+                {initialStatus === "draft" ? "Draft" : "Published"}
+              </span>
+            )}
+          </div>
           <p className="mt-1 text-sm text-slate-500">
             Compose content, assign metadata, and publish to production.
           </p>
@@ -109,7 +136,7 @@ export default function PostFormFields({
       {saved && (
         <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           <CheckCircle2 className="h-4 w-4" />
-          {editingSlug ? "Post updated." : "Post published."}
+          {editingSlug ? "Post updated." : "Post saved."}
         </div>
       )}
 
@@ -187,7 +214,7 @@ export default function PostFormFields({
         <TipTapEditor value={values.content} onChange={(html) => set("content", html)} />
       </Field>
 
-      <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 pt-5">
         <button
           type="button"
           onClick={() => {
@@ -199,6 +226,19 @@ export default function PostFormFields({
         >
           Reset
         </button>
+
+        {!editingSlug && (
+          <button
+            type="button"
+            onClick={() => runSubmit("draft")}
+            disabled={submitting}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-600 transition hover:border-blue-600 hover:text-blue-600 disabled:opacity-60"
+          >
+            <FileEdit className="h-4 w-4" />
+            Save as Draft
+          </button>
+        )}
+
         <button
           type="submit"
           disabled={submitting}
@@ -215,7 +255,7 @@ export default function PostFormFields({
               : "Publishing…"
             : editingSlug
               ? "Save changes"
-              : "Publish post"}
+              : "Publish"}
         </button>
       </div>
     </form>
