@@ -1,6 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { collection, getDocs, doc, deleteDoc, query, orderBy, addDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  query,
+  orderBy,
+  addDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAuthStore } from "@/store/authStore";
 
 export interface ContactMessage {
   id: string;
@@ -56,7 +65,9 @@ async function deleteMessageById(id: string): Promise<void> {
   }
 }
 
-async function createContactMessage(data: ContactMessageInput): Promise<string> {
+async function createContactMessage(
+  data: ContactMessageInput,
+): Promise<string> {
   try {
     const messagesCollection = collection(db, "messages");
     const docRef = await addDoc(messagesCollection, {
@@ -71,9 +82,12 @@ async function createContactMessage(data: ContactMessageInput): Promise<string> 
 }
 
 export function useMessages() {
+  const isDemoMode = useAuthStore((s) => s.isDemoMode);
+
   return useQuery<ContactMessage[]>({
     queryKey: messageKeys.all,
     queryFn: getAllMessages,
+    enabled: !isDemoMode,
   });
 }
 
