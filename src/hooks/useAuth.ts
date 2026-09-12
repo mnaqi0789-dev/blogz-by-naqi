@@ -1,16 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuthStore } from "@/store/authStore";
 
 export function useAuth() {
-  const { setUser } = useAuthStore();
+  const { setUser, exitDemoMode } = useAuthStore();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
+        exitDemoMode();
         setUser({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
@@ -22,7 +28,7 @@ export function useAuth() {
     });
 
     return () => unsubscribe();
-  }, [setUser]);
+  }, [setUser, exitDemoMode]);
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();

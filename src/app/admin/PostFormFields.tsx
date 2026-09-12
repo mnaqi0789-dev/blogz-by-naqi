@@ -56,6 +56,8 @@ export default function PostFormFields({
     set("slug", slugify(raw));
   };
 
+  const isNewOrDraft = !editingSlug || initialStatus === "draft";
+
   const runSubmit = async (status?: Post["status"]) => {
     setSaved(false);
     const parsed = postSchema.safeParse(values);
@@ -70,13 +72,15 @@ export default function PostFormFields({
     }
 
     if (isDemoMode) {
-      openDemoNotice(
-        editingSlug
-          ? "save changes to posts"
-          : status === "draft"
-            ? "save draft posts"
-            : "publish new posts",
-      );
+      const action =
+        status === "draft"
+          ? "save draft posts"
+          : editingSlug && initialStatus === "draft"
+            ? "publish posts"
+            : editingSlug
+              ? "save changes to posts"
+              : "publish new posts";
+      openDemoNotice(action);
       return;
     }
 
@@ -94,7 +98,7 @@ export default function PostFormFields({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    runSubmit(editingSlug ? undefined : "published");
+    runSubmit(isNewOrDraft ? "published" : undefined);
   };
 
   return (
@@ -227,7 +231,7 @@ export default function PostFormFields({
           Reset
         </button>
 
-        {!editingSlug && (
+        {isNewOrDraft && (
           <button
             type="button"
             onClick={() => runSubmit("draft")}
@@ -250,12 +254,12 @@ export default function PostFormFields({
             <Save className="h-4 w-4" />
           )}
           {submitting
-            ? editingSlug
-              ? "Saving…"
-              : "Publishing…"
-            : editingSlug
-              ? "Save changes"
-              : "Publish"}
+            ? isNewOrDraft
+              ? "Publishing…"
+              : "Saving…"
+            : isNewOrDraft
+              ? "Publish"
+              : "Save changes"}
         </button>
       </div>
     </form>

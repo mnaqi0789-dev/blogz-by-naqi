@@ -40,19 +40,20 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (values: PostFormValues, status?: Post["status"]) => {
     if (isDemoMode) {
-      openDemoNotice(
-        editingPostSlug
-          ? "save changes to posts"
-          : status === "draft"
-            ? "save draft posts"
-            : "publish new posts",
-      );
+      const action =
+        status === "draft"
+          ? "save draft posts"
+          : editingPostSlug
+            ? "save changes to posts"
+            : "publish new posts";
+      openDemoNotice(action);
       return;
     }
     if (editingPostSlug) {
-      await updatePost({ slug: editingPostSlug, data: values });
+      const data = status ? { ...values, status } : values;
+      await updatePost({ slug: editingPostSlug, data });
       setEditingPostSlug(null);
-      setTab("manage");
+      setTab(status === "draft" ? "drafts" : "manage");
     } else {
       await createPost({ ...values, status: status ?? "published", createdAt: new Date() });
       setTab(status === "draft" ? "drafts" : "manage");
