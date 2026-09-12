@@ -7,12 +7,13 @@ A personal blogging site built with **Next.js 16 (App Router)**, **TypeScript**,
 ## Features
 
 - **Home** — landing page with intro copy and a floating banner image.
-- **Posts** (`/posts`) — card grid of all posts, with search and category filtering (All / Finance / Computer Science).
+- **Posts** (`/posts`) — card grid of all published posts, with search and category filtering (All / Finance / Computer Science).
 - **Individual post** (`/blog/[slug]`) — full post view with a hero banner behind the title and the rich text content rendered as HTML.
 - **Admin console** (`/admin`) — protected dashboard featuring two access tiers (Admin vs. Demo Mode):
   - Google sign-in via Firebase Auth.
-  - **Create/Edit** — TipTap rich text editor, auto-generated slugs, category selector, banner image URL with live preview.
-  - **Manage Posts** — list of all posts with edit and delete capabilities.
+  - **Create/Edit** — TipTap rich text editor, auto-generated slugs, category selector, banner image URL with live preview, and a choice to publish immediately or save as a draft.
+  - **Manage Posts** — list of all published posts with edit, archive, and delete capabilities.
+  - **Drafts** — list of unpublished posts, with options to edit, publish, or delete. Restricted to the site owner.
   - **Messages** — inbox of contact form submissions.
   - Active tab persists across navigation (sessionStorage-backed).
 - **Contact** (`/contact`) — form (name, email, subject, message) that writes directly to Firestore, plus contact details.
@@ -28,6 +29,18 @@ To allow safe public exploration of the administrative panel without exposing un
 - **Protected Data Privacy** — Hides sensitive assets, including user inquiries and message text, from unauthorized view.
 - **Full Interface Browsing** — Users can navigate the entire dashboard, open creation menus, and configure fields up to the final execution step.
 - **Interactive Safeguards** — Attempting a final save or destructive action triggers a modal notification explaining that the action is locked, prompting the user to contact the primary admin for full clearance.
+
+---
+
+## What's New in V3: Draft Mode
+
+V3 adds a full draft/publish lifecycle to posts, so entries no longer have to go live the moment they're written:
+
+- **Save as Draft** — The Create Post form offers a choice at save time: publish immediately, or save as a draft. Drafts never appear on the public site.
+- **Archive** — Any published post can be archived from Manage Posts, moving it straight back to Drafts without deleting it.
+- **Drafts Tab** — A fourth admin tab listing every unpublished post, with Edit, Publish, and Delete actions.
+- **Owner-Only Visibility** — Drafts are restricted to the authenticated site owner. In Demo Mode, the Drafts tab shows a fixed notice — *"You're not allowed to view draft posts in demo mode. For authorization, please contact the admin."* — instead of the list, with a direct link to the Contact page.
+- **Enforced at the Data Layer** — Visibility isn't just a UI toggle: Firestore Security Rules restrict reads of documents with `status: "draft"` to the owner's authenticated email, so unpublished content isn't reachable by unauthenticated or demo sessions even via a direct query.
 
 ---
 
@@ -59,6 +72,7 @@ To allow safe public exploration of the administrative panel without exposing un
 | `content` | `string` — HTML from TipTap |
 | `category` | `"finance" \| "compsci"` |
 | `bannerImage` | `string` — image URL |
+| `status` | `"published" \| "draft"` |
 | `createdAt` | `Date` |
 
 ### `messages` collection
@@ -78,8 +92,8 @@ To allow safe public exploration of the administrative panel without exposing un
 The administrative system runs on a strict single-owner validation protocol using Google Sign-In (Firebase Auth):
 
 1. **Email Check** — After a login attempt, the user's email is evaluated against `NEXT_PUBLIC_ADMIN_EMAIL`.
-2. **Admin Access** — A matching email grants full read/write authority across all dashboard tabs, configuration updates, and message logs.
-3. **Demo Mode Dropback** — Any non-matching authenticated email falls back to **Demo Mode**. This authorizes the user to view UI workflows safely while blockading mutations and data leaks.
+2. **Admin Access** — A matching email grants full read/write authority across all dashboard tabs, drafts, configuration updates, and message logs.
+3. **Demo Mode Dropback** — Any non-matching authenticated email falls back to **Demo Mode**. This authorizes the user to view UI workflows safely while blockading mutations, drafts, and data leaks.
 
 ---
 
@@ -121,16 +135,17 @@ npm run build
 ```src/
 ├── app/
 │   ├── page.tsx                 # Home
-│   ├── posts/page.tsx           # Posts grid
-│   ├── blog/[slug]/page.tsx     # Individual post
+│   ├── posts/page.tsx           # Posts grid (published only)
+│   ├── blog/[slug]/page.tsx     # Individual post (drafts return "not found")
 │   ├── contact/page.tsx         # Contact form
 │   └── admin/
 │       ├── page.tsx             # Auth gate entry point
 │       ├── AuthGate.tsx         # Sign-in handler and Demo fallback router
 │       ├── AdminDashboard.tsx   # Header, tabs, panel switcher
 │       ├── PostForm.tsx         # Loads post-to-edit, hands off to fields
-│       ├── PostFormFields.tsx   # Create/edit form UI + validation (Demo gated)
-│       ├── ManagePanel.tsx      # Post list, edit/delete (Demo gated)
+│       ├── PostFormFields.tsx   # Create/edit form UI + validation (Publish / Save as Draft)
+│       ├── ManagePanel.tsx      # Published post list, edit/archive/delete (Demo gated)
+│       ├── DraftsPanel.tsx      # Draft list, edit/publish/delete (Owner-only, Demo blocked)
 │       ├── MessagesPanel.tsx    # Contact inbox (Hidden/Gated in Demo)
 │       ├── schema.ts            # Zod schema, slugify, form types
 │       └── useAdminTab.ts       # Persisted active-tab hook
@@ -152,6 +167,7 @@ The repo includes a `netlify.toml` that wires up `@netlify/plugin-nextjs`, requi
 4. Add the same seven environment variables from `.env.local` under **Site configuration → Environment variables**.
 5. Deploy.
 6. In **Firebase Console → Authentication → Settings → Authorized domains**, add your Netlify domain — otherwise Google sign-in will be rejected in production.
+7. In **Firebase Console → Firestore Database → Rules**, ensure `posts` reads are restricted for `status: "draft"` documents to the owner's authenticated email — this is what actually enforces Draft Mode's privacy, not just the UI.
 
 ---
 
@@ -163,6 +179,6 @@ The repo includes a `netlify.toml` that wires up `@netlify/plugin-nextjs`, requi
 - [x] Phase 4 — Pages (Home, Posts, Individual post, Admin, TipTap editor, Contact)
 - [x] Phase 5 — Auth listener, protected admin route, slug generator, deploy
 - [x] Phase 6 — V2 Updates (Demo Mode integration, write-blocking UI, popup triggers)
+- [x] Phase 7 — V3 Updates (Draft Mode: save-as-draft, archive, Drafts tab, Firestore-enforced privacy)
 
 All phases complete.
-
